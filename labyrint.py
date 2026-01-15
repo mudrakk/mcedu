@@ -1,4 +1,4 @@
-size = 15          # musí byť NEPÁRNE číslo
+size = 15         
 wall = STONE
 air = AIR
 
