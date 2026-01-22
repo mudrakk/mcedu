@@ -1,26 +1,19 @@
-size = 15         
+size = 15
 wall = STONE
 air = AIR
 
 base = player.position()
 
 
-def wx(x):
-    return base.getValue(Axis.X) + x
-
-def wy(y):
-    return base.getValue(Axis.Y) + y
-
-def wz(z):
-    return base.getValue(Axis.Z) + z
-
+def wx(x): return base.getValue(Axis.X) + x
+def wy(y): return base.getValue(Axis.Y) + y
+def wz(z): return base.getValue(Axis.Z) + z
 
 
 for x in range(size):
     for z in range(size):
         for y in range(2):
             blocks.place(wall, world(wx(x), wy(y), wz(z)))
-
 
 
 visited = []
@@ -33,9 +26,8 @@ visited.append(str(startX) + "," + str(startZ))
 
 while len(stack) > 0:
     cx, cz = stack[len(stack) - 1]
-
-
     dirs = []
+
     if cx > 1 and str(cx - 2) + "," + str(cz) not in visited:
         dirs.append([-2, 0])
     if cx < size - 2 and str(cx + 2) + "," + str(cz) not in visited:
@@ -47,7 +39,6 @@ while len(stack) > 0:
 
     if len(dirs) > 0:
         dx, dz = dirs[Math.randomRange(0, len(dirs) - 1)]
-
 
         blocks.place(air, world(wx(cx + dx), wy(0), wz(cz + dz)))
         blocks.place(air, world(wx(cx + dx), wy(1), wz(cz + dz)))
@@ -61,11 +52,42 @@ while len(stack) > 0:
     else:
         stack.pop()
 
-
 blocks.place(air, world(wx(1), wy(0), wz(0)))
 blocks.place(air, world(wx(1), wy(1), wz(0)))
 
 blocks.place(air, world(wx(size - 2), wy(0), wz(size - 1)))
 blocks.place(air, world(wx(size - 2), wy(1), wz(size - 1)))
 
-player.say("Vždy riešiteľný labyrint hotový!")
+player.say("Labyrint hotový!")
+
+
+def on_chat_agent():
+    agent.teleport(player.position().add(pos(0, 1, 0)), SOUTH)
+    player.say("Agent pri tebe")
+
+player.onChat("agent", on_chat_agent)
+
+
+def on_chat_left():
+    agent.teleport(world(wx(1), wy(0), wz(1)), SOUTH)
+    player.say("Left-hand solver ide")
+
+    while True:
+       
+        agent.turn(LEFT)
+        if not agent.detect(AgentDetection.BLOCK, FORWARD):
+            agent.move(FORWARD, 1)
+            loops.pause(150)
+            continue
+        agent.turn(RIGHT)
+
+   
+        if not agent.detect(AgentDetection.BLOCK, FORWARD):
+            agent.move(FORWARD, 1)
+            loops.pause(150)
+            continue
+
+       
+        agent.turn(RIGHT)
+
+player.onChat("left", on_chat_left)
